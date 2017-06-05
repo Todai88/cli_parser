@@ -5,10 +5,9 @@ import os #as we need path
 
 class CliParser(object):
 
-    def __init__(self, verbose, logger = None):
+    def __init__(self, logger = None, verbose = False):
         ## Adding a logger to follow along and print warnings / errors.
         ## Verbose to write debug info
-
         self.logger = logger
         self.verbose = verbose
 
@@ -22,22 +21,22 @@ class CliParser(object):
 
         pretty_data = []
 
-        if self.is_valid_path(path):
-            if self.verbose:
-                print(">>> File exists.")
+      #  if self.is_valid_path(path):
+        if self.verbose:
+            print(">>> File exists.")
 
-            to_parse = self.get_data_from_file(path)
-            if self.verbose:
-                print(">>> Got the text")
-
-            parsed_data = self.parse_data(to_parse)
-            if self.verbose:
-                print(">>> Parsed the text")
-
-            pretty_data = self.format_data(parsed_data)
-            if self.verbose:
-                print(">>> Formatted the data")
-
+        to_parse = self.get_data_from_file(path)
+        #if self.verbose:
+         #   print(">>> Got the text:")
+          #  print(to_parse)
+        parsed_data = self.parse_data(to_parse)
+        if self.verbose:
+            print(">>> Parsed the text:")
+            print(parsed_data)
+        pretty_data = self.format_data(parsed_data)
+        if self.verbose:
+            print(">>> Formatted the data:")
+            print(pretty_data)
         return pretty_data
 
 
@@ -48,12 +47,10 @@ class CliParser(object):
         :param string: 
         :return: list of formatted exec dictionaries
         """
-
         if self.verbose:
             print(">>> You supplied a string")
 
         if data_string:
-
             parsed_data = self.parse_data(data_string.split('\\n'))
             if self.verbose:
                 print(">>> Parsed the text")
@@ -62,14 +59,15 @@ class CliParser(object):
             if self.verbose:
                 print(">>> Formatted the data")
 
-    def is_valid_path(self, path):
+            return pretty_data
+    #def is_valid_path(self, path):
         """
         Check if a file exists in path
         :return: boolean indicating success or failure
         """
-        return os.path.isfile(path)
+     #   return os.path.isfile(path)
 
-    def get_data_from_file(self, path):
+    def get_data_from_file(self, file):
         """
         Gets data from a file by 
         reading line for line.
@@ -81,9 +79,8 @@ class CliParser(object):
         data_list = []
 
         try:
-            with open(path, 'r') as f:
-                for line in f:
-                    data_list.append(line.strip('\n')) # remove newline symbol
+            for line in file:
+                data_list.append(line.strip(u'\n')) # remove newline symbol
         except IOError as exception:
             if self.logger:
                 self.logger.error("""
@@ -98,20 +95,19 @@ class CliParser(object):
         :param data: 
         :return: List of split entries list
         """
-
-        liat_of_entries_list = []
+        list_of_entries_list = []
 
         for entry in data:
             try:
                 entry_list = entry.strip().split()
-                liat_of_entries_list.append(entry_list)
+                list_of_entries_list.append(entry_list)
             except ValueError as exception:
                 if self.logger:
                     self.logger.error("""
                     Could not successfully process list..
                     Exception: %s""", exception)
 
-        return liat_of_entries_list
+        return list_of_entries_list
 
     def format_data(self, data):
         """
@@ -121,15 +117,13 @@ class CliParser(object):
         :return: A dictionary list of formatted
                  exec entries
         """
-
         formatted_exec_dictionary_list = []
-
         for entry in data:
             try:
                 formatted_exec = {
-                    'minute': self.validate_type_and_range(entry[0]),
-                    'hour': self.validate_type_and_range(entry[1]),
-                    'fun': entry[2]
+                    'minute': self.validate_type_and_range(entry[0], 0, 59),
+                    'hour': self.validate_type_and_range(entry[1], 0, 23),
+                    'path': entry[2]
                 }
                 formatted_exec_dictionary_list.append(formatted_exec)
             except IndexError as exception:
@@ -138,7 +132,7 @@ class CliParser(object):
                     Could not successfully parse entry...
                     Exception: %s""", exception)
 
-            return formatted_exec_dictionary_list
+        return formatted_exec_dictionary_list
 
     def validate_type_and_range(self, to_check, low, high):
         """
@@ -150,9 +144,8 @@ class CliParser(object):
         """
 
         try:
-
-            if to_check == '*':
-                return to_check
+            if  str(to_check) == '*':
+                return str(to_check)
             if low <= int(to_check) <= high:
                 return int(to_check)
 

@@ -25,12 +25,27 @@ class TestCronParser(TestCase):
 
         self.assertEqual(expected, response, "Incorrect PATH")
 
-    def test_get_cron_data(self):
-        file_path = os.path.abspath(u'crontab.txt')
+    def test_valid_data_from_file(self):
+        file_path = os.path.join(self.THIS_DIR, 'basic_tests.txt')
         expected = [
             u'30 1 /bin/run_me_daily',
             u'45 * /bin/run_me_hourly',
             u'* * /bin/run_me_every_minute',
             u'* 19 /bin/run_me_sixty_times'
         ]
+
         response = CliParser(None).get_data_from_file(file_path)
+
+        self.assertEqual(expected, response, response)
+
+    def test_valid_data_from_string(self):
+        """
+        Just testing the one line as there is a risk that
+        the dictionary gets bundled and test fails.
+        """
+        response = CliParser(None).check_and_parse_string("30 1 /bin/run_me_daily")
+        expected = [{'path': '/bin/run_me_daily', 'hour': 1, 'minute': 30}]
+
+        self.assertEqual(expected, response, "String missmatch: \n" + str(response))
+
+    

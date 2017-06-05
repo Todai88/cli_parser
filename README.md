@@ -30,6 +30,32 @@ And should give the output:
 ~~~
 
 
+
+EDIT
+----
+
+As it seems I misread the requirements I have had to make changes in the code.
+
+It now uses sys.argvs and stdin to grab a file (and only a file!) together with its file-extension.
+
+An example usage would be:
+~~~
+python parser 16:10 < config.txt
+~~~
+
+As it relies on stdin it will give you an error if file doesn't exist.
+If there are too many arguments (not 2) it will flag that and raise a SystemExit
+
+If you wish to use the previous version of the code you can simply remove
+the comments in main and make a small change to `check_and_parse_file(self, path):`
+so that it simply validates the path.
+
+Other than that it was a minor fix.
+
+Everything below is regarding the previous version! :)
+
+
+------------------------------------------------------
 Input was specified to be taken from a file, but in my case I extended it to
 also accept strings on the commandline. Just thought that was a fun extension. :)
 
